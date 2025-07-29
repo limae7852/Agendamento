@@ -68,10 +68,10 @@
                     <button onclick="showSection('schedule')" class="bg-white text-orange-600 px-6 py-3 rounded-lg font-semibold hover:bg-orange-50 transition flex items-center justify-center gap-2">
                         <i class="fas fa-calendar-plus"></i> Agendar Retirada
                     </button>
-                    <button onclick="showSection('my-schedules')" class="bg-blue-800 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-900 transition flex items-center justify-center gap-2">
+                    <button onclick="showSection('my-schedules')" class="bg-transparent border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-orange-600 transition flex items-center justify-center gap-2">
                         <i class="fas fa-search"></i> Consultar Agendamento
                     </button>
-                    <button onclick="showLoginModal()" class="bg-transparent border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition flex items-center justify-center gap-2">
+                    <button onclick="showLoginModal()" class="bg-transparent border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-orange-600 transition flex items-center justify-center gap-2">
                         <i class="fas fa-user"></i> Entrar / Cadastrar
                     </button>
                 </div>
@@ -79,21 +79,21 @@
 
             <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="bg-white p-6 rounded-xl custom-shadow">
-                    <div class="text-blue-600 mb-4">
+                    <div class="text-orange-600 mb-4">
                         <i class="fas fa-clock text-3xl"></i>
                     </div>
                     <h3 class="text-xl font-bold mb-2">Agendamento Rápido</h3>
                     <p class="text-gray-600">Escolha a data e horário que melhor se encaixam na sua agenda em poucos cliques.</p>
                 </div>
                 <div class="bg-white p-6 rounded-xl custom-shadow">
-                    <div class="text-blue-600 mb-4">
+                    <div class="text-orange-600 mb-4">
                         <i class="fas fa-bell text-3xl"></i>
                     </div>
                     <h3 class="text-xl font-bold mb-2">Lembretes Automáticos</h3>
                     <p class="text-gray-600">Receba notificações por e-mail para não esquecer do seu agendamento.</p>
                 </div>
                 <div class="bg-white p-6 rounded-xl custom-shadow">
-                    <div class="text-blue-600 mb-4">
+                    <div class="text-orange-600 mb-4">
                         <i class="fas fa-shield-alt text-3xl"></i>
                     </div>
                     <h3 class="text-xl font-bold mb-2">Processo Seguro</h3>
@@ -114,7 +114,7 @@
                     
                     <div class="mb-6">
                         <label class="block text-gray-700 mb-2">Local de Retirada:</label>
-                        <select class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <select class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
                             <option>Armazém Central - Rua Principal, 123</option>
                             <option>Almoxarifado Setorial - Bloco B</option>
                             <option>Depósito de Materiais - Pátio 3</option>
@@ -151,12 +151,12 @@
                             <div class="calendar-day disabled text-center py-3 text-gray-400 rounded-lg">29</div>
                             <div class="calendar-day disabled text-center py-3 text-gray-400 rounded-lg">30</div>
                             <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-orange-100">1</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">2</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">3</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">4</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">5</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100 bg-blue-100 border border-blue-500">6</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">7</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-orange-100">2</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-orange-100">3</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-orange-100">4</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-orange-100">5</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-orange-100 bg-orange-100 border border-orange-500">6</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-orange-100">7</div>
                             <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">8</div>
                             <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">9</div>
                             <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">10</div>
@@ -209,7 +209,7 @@
                         <h4 class="font-semibold text-orange-800 mb-2 flex items-center gap-2">
                             <i class="fas fa-info-circle"></i> Informações importantes:
                         </h4>
-                        <ul class="list-disc list-inside text-blue-700 space-y-1">
+                        <ul class="list-disc list-inside text-orange-700 space-y-1">
                             <li>Retirada permitida apenas em dias úteis (segunda a sexta)</li>
                             <li>Agendamento com no mínimo 24h de antecedência</li>
                             <li>Trazer documento de identificação no dia da retirada</li>
@@ -311,10 +311,10 @@
                                 <td class="px-6 py-4 whitespace-nowrap">10:00 - 10:30</td>
                                 <td class="px-6 py-4">Armazém Central</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 py-1 text-sm rounded-full bg-green-100 text-green-800">Confirmado</span>
+                                    <span class="px-2 py-1 text-sm rounded-full bg-orange-100 text-orange-800">Confirmado</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <button class="text-blue-600 hover:text-blue-800 mr-3" onclick="rescheduleAppointment(1)">
+                                    <button class="text-orange-600 hover:text-orange-800 mr-3" onclick="rescheduleAppointment(1)">
                                         <i class="fas fa-calendar-edit"></i> Reagendar
                                     </button>
                                     <button class="text-red-600 hover:text-red-800" onclick="cancelAppointment(1)">
@@ -401,10 +401,10 @@
                 <div>
                     <h3 class="text-xl font-bold mb-4">Links Rápidos</h3>
                     <ul class="space-y-2">
-                        <li><a href="#" class="text-gray-400 hover:text-white transition" onclick="showSection('home'); return false;">Início</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition" onclick="showSection('schedule'); return false;">Agendar Retirada</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition" onclick="showSection('my-schedules'); return false;">Meus Agendamentos</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition" onclick="showLoginModal(); return false;">Área do Usuário</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-orange-300 transition" onclick="showSection('home'); return false;">Início</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-orange-300 transition" onclick="showSection('schedule'); return false;">Agendar Retirada</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-orange-300 transition" onclick="showSection('my-schedules'); return false;">Meus Agendamentos</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-orange-300 transition" onclick="showLoginModal(); return false;">Área do Usuário</a></li>
                     </ul>
                 </div>
                 <div>
@@ -417,7 +417,7 @@
                 </div>
             </div>
             <div class="border-t border-gray-700 mt-8 pt-6 text-center text-gray-400">
-                <p>&copy; 2023 RetiradaExpress. Todos os direitos reservados.</p>
+                <p>&copy; Rossetti Filhos Industria e Comercio LTDA | Todos os direitos reservados.</p>
             </div>
         </div>
     </footer>
@@ -447,13 +447,13 @@
                             <input type="checkbox" id="remember" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
                             <label for="remember" class="ml-2 block text-sm text-gray-700">Lembrar de mim</label>
                         </div>
-                        <a href="#" class="text-sm text-blue-600 hover:text-blue-800">Esqueceu a senha?</a>
+                        <a href="#" class="text-sm text-orange-600 hover:text-orange-800">Esqueceu a senha?</a>
                     </div>
                     <button class="w-full bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 transition mb-4">
                         Entrar
                     </button>
                     <div class="text-center">
-                        <button onclick="showRegisterForm()" class="text-blue-600 hover:text-blue-800 font-medium">
+                        <button onclick="showRegisterForm()" class="text-orange-600 hover:text-orange-800 font-medium">
                             Não tem uma conta? Cadastre-se
                         </button>
                     </div>
