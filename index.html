@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Agendamento de Retirada</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .custom-shadow {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .calendar-day {
+            transition: all 0.2s ease;
+        }
+        .calendar-day:hover:not(.disabled) {
+            background-color: #e2e8f0;
+        }
+        .time-slot {
+            transition: all 0.2s ease;
+        }
+        .time-slot:hover:not(.booked) {
+            background-color: #e2e8f0;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Navigation -->
+    <nav class="bg-blue-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-calendar-check text-2xl"></i>
+                <span class="text-xl font-bold">RetiradaExpress</span>
+            </div>
+            <div class="hidden md:flex space-x-6">
+                <a href="#" class="hover:text-blue-200 transition" onclick="showSection('home')">Início</a>
+                <a href="#" class="hover:text-blue-200 transition" onclick="showSection('schedule')">Agendar</a>
+                <a href="#" class="hover:text-blue-200 transition" onclick="showSection('my-schedules')">Meus Agendamentos</a>
+                <a href="#" class="hover:text-blue-200 transition" onclick="showLoginModal()">Entrar</a>
+            </div>
+            <button class="md:hidden text-xl" onclick="toggleMobileMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-blue-700 px-4 py-2">
+            <a href="#" class="block py-2 hover:text-blue-200 transition" onclick="showSection('home'); toggleMobileMenu()">Início</a>
+            <a href="#" class="block py-2 hover:text-blue-200 transition" onclick="showSection('schedule'); toggleMobileMenu()">Agendar</a>
+            <a href="#" class="block py-2 hover:text-blue-200 transition" onclick="showSection('my-schedules'); toggleMobileMenu()">Meus Agendamentos</a>
+            <a href="#" class="block py-2 hover:text-blue-200 transition" onclick="showLoginModal(); toggleMobileMenu()">Entrar</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Home Section -->
+        <section id="home" class="fade-in">
+            <div class="bg-gradient-to-r from-blue-500 to-blue-700 rounded-xl p-8 text-white custom-shadow">
+                <h1 class="text-3xl md:text-4xl font-bold mb-4">Agende aqui a retirada do seu material de forma rápida e segura</h1>
+                <p class="text-lg mb-6">Nosso sistema simplificado facilita o agendamento e garante uma experiência tranquila para você.</p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button onclick="showSection('schedule')" class="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition flex items-center justify-center gap-2">
+                        <i class="fas fa-calendar-plus"></i> Agendar Retirada
+                    </button>
+                    <button onclick="showSection('my-schedules')" class="bg-blue-800 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-900 transition flex items-center justify-center gap-2">
+                        <i class="fas fa-search"></i> Consultar Agendamento
+                    </button>
+                    <button onclick="showLoginModal()" class="bg-transparent border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition flex items-center justify-center gap-2">
+                        <i class="fas fa-user"></i> Entrar / Cadastrar
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-xl custom-shadow">
+                    <div class="text-blue-600 mb-4">
+                        <i class="fas fa-clock text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Agendamento Rápido</h3>
+                    <p class="text-gray-600">Escolha a data e horário que melhor se encaixam na sua agenda em poucos cliques.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl custom-shadow">
+                    <div class="text-blue-600 mb-4">
+                        <i class="fas fa-bell text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Lembretes Automáticos</h3>
+                    <p class="text-gray-600">Receba notificações por e-mail para não esquecer do seu agendamento.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl custom-shadow">
+                    <div class="text-blue-600 mb-4">
+                        <i class="fas fa-shield-alt text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Processo Seguro</h3>
+                    <p class="text-gray-600">Sistema protegido com autenticação e confirmação de identidade na retirada.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Schedule Section -->
+        <section id="schedule" class="hidden fade-in">
+            <div class="bg-white rounded-xl p-6 custom-shadow">
+                <h2 class="text-2xl font-bold mb-6 text-blue-600 flex items-center gap-2">
+                    <i class="fas fa-calendar-plus"></i> Agendar Retirada
+                </h2>
+                
+                <div id="scheduleStep1">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-700">Passo 1: Escolha a data e horário</h3>
+                    
+                    <div class="mb-6">
+                        <label class="block text-gray-700 mb-2">Local de Retirada:</label>
+                        <select class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option>Armazém Central - Rua Principal, 123</option>
+                            <option>Almoxarifado Setorial - Bloco B</option>
+                            <option>Depósito de Materiais - Pátio 3</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-gray-700 mb-2">Selecione o mês:</label>
+                        <div class="flex justify-between items-center mb-4">
+                            <button type="button" class="p-2 rounded-full hover:bg-gray-100" aria-label="Mês anterior">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <span class="font-semibold">Julho 2023</span>
+                            <button type="button" class="p-2 rounded-full hover:bg-gray-100" aria-label="Próximo mês">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="grid grid-cols-7 gap-2 mb-2">
+                            <div class="text-center font-semibold text-gray-500 py-2">Dom</div>
+                            <div class="text-center font-semibold text-gray-500 py-2">Seg</div>
+                            <div class="text-center font-semibold text-gray-500 py-2">Ter</div>
+                            <div class="text-center font-semibold text-gray-500 py-2">Qua</div>
+                            <div class="text-center font-semibold text-gray-500 py-2">Qui</div>
+                            <div class="text-center font-semibold text-gray-500 py-2">Sex</div>
+                            <div class="text-center font-semibold text-gray-500 py-2">Sáb</div>
+                        </div>
+                        
+                        <div class="grid grid-cols-7 gap-2">
+                            <div class="calendar-day disabled text-center py-3 text-gray-400 rounded-lg">25</div>
+                            <div class="calendar-day disabled text-center py-3 text-gray-400 rounded-lg">26</div>
+                            <div class="calendar-day disabled text-center py-3 text-gray-400 rounded-lg">27</div>
+                            <div class="calendar-day disabled text-center py-3 text-gray-400 rounded-lg">28</div>
+                            <div class="calendar-day disabled text-center py-3 text-gray-400 rounded-lg">29</div>
+                            <div class="calendar-day disabled text-center py-3 text-gray-400 rounded-lg">30</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">1</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">2</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">3</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">4</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">5</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100 bg-blue-100 border border-blue-500">6</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">7</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">8</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">9</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">10</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">11</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">12</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">13</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">14</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">15</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">16</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">17</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">18</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">19</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">20</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">21</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">22</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">23</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">24</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">25</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">26</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">27</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">28</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">29</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">30</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">31</div>
+                            <div class="calendar-day disabled text-center py-3 text-gray-400 rounded-lg">1</div>
+                            <div class="calendar-day disabled text-center py-3 text-gray-400 rounded-lg">2</div>
+                            <div class="calendar-day disabled text-center py-3 text-gray-400 rounded-lg">3</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-gray-700 mb-2">Horários disponíveis para 06/07/2023:</label>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                            <div class="time-slot booked text-center py-2 px-4 border rounded-lg bg-gray-100 text-gray-400 cursor-not-allowed">08:00 - 08:30</div>
+                            <div class="time-slot booked text-center py-2 px-4 border rounded-lg bg-gray-100 text-gray-400 cursor-not-allowed">08:30 - 09:00</div>
+                            <div class="time-slot text-center py-2 px-4 border rounded-lg cursor-pointer hover:bg-blue-100">09:00 - 09:30</div>
+                            <div class="time-slot text-center py-2 px-4 border rounded-lg cursor-pointer hover:bg-blue-100">09:30 - 10:00</div>
+                            <div class="time-slot text-center py-2 px-4 border rounded-lg cursor-pointer hover:bg-blue-100">10:00 - 10:30</div>
+                            <div class="time-slot text-center py-2 px-4 border rounded-lg cursor-pointer hover:bg-blue-100">10:30 - 11:00</div>
+                            <div class="time-slot booked text-center py-2 px-4 border rounded-lg bg-gray-100 text-gray-400 cursor-not-allowed">11:00 - 11:30</div>
+                            <div class="time-slot text-center py-2 px-4 border rounded-lg cursor-pointer hover:bg-blue-100">11:30 - 12:00</div>
+                            <div class="time-slot text-center py-2 px-4 border rounded-lg cursor-pointer hover:bg-blue-100">13:00 - 13:30</div>
+                            <div class="time-slot text-center py-2 px-4 border rounded-lg cursor-pointer hover:bg-blue-100">13:30 - 14:00</div>
+                            <div class="time-slot text-center py-2 px-4 border rounded-lg cursor-pointer hover:bg-blue-100">14:00 - 14:30</div>
+                            <div class="time-slot text-center py-2 px-4 border rounded-lg cursor-pointer hover:bg-blue-100">14:30 - 15:00</div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                        <h4 class="font-semibold text-blue-800 mb-2 flex items-center gap-2">
+                            <i class="fas fa-info-circle"></i> Informações importantes:
+                        </h4>
+                        <ul class="list-disc list-inside text-blue-700 space-y-1">
+                            <li>Retirada permitida apenas em dias úteis (segunda a sexta)</li>
+                            <li>Agendamento com no mínimo 24h de antecedência</li>
+                            <li>Trazer documento de identificação no dia da retirada</li>
+                            <li>Horário de funcionamento: 08:00 às 17:00</li>
+                        </ul>
+                    </div>
+                    
+                    <button type="button" onclick="nextScheduleStep()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition flex items-center justify-center gap-2">
+                        <i class="fas fa-arrow-right"></i> Próximo Passo
+                    </button>
+                </div>
+                
+                <div id="scheduleStep2" class="hidden">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-700">Passo 2: Confirmar agendamento</h3>
+                    
+                    <div class="bg-blue-50 rounded-lg p-6 mb-6">
+                        <h4 class="text-xl font-bold text-blue-800 mb-4">Resumo do Agendamento</h4>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Data:</span>
+                                <span class="font-medium">06/07/2023</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Horário:</span>
+                                <span class="font-medium">09:00 - 09:30</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Local:</span>
+                                <span class="font-medium">Armazém Central - Rua Principal, 123</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Status:</span>
+                                <span class="font-medium text-green-600">Disponível</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-gray-700 mb-2">Observações (opcional):</label>
+                        <textarea class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" rows="3" placeholder="Ex: Material frágil, necessita cuidado especial"></textarea>
+                    </div>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <button type="button" onclick="prevScheduleStep()" class="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition flex items-center justify-center gap-2">
+                            <i class="fas fa-arrow-left"></i> Voltar
+                        </button>
+                        <button type="button" onclick="confirmSchedule()" class="flex-1 bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition flex items-center justify-center gap-2">
+                            <i class="fas fa-check"></i> Confirmar Agendamento
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- My Schedules Section -->
+        <section id="my-schedules" class="hidden fade-in">
+            <div class="bg-white rounded-xl p-6 custom-shadow">
+                <h2 class="text-2xl font-bold mb-6 text-blue-600 flex items-center gap-2">
+                    <i class="fas fa-calendar-alt"></i> Meus Agendamentos
+                </h2>
+                
+                <div class="mb-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div class="relative w-full sm:w-64">
+                            <input type="text" placeholder="Buscar agendamento..." class="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                        </div>
+                        <div class="flex gap-2 w-full sm:w-auto">
+                            <select class="p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option>Todos os status</option>
+                                <option>Confirmado</option>
+                                <option>Pendente</option>
+                                <option>Cancelado</option>
+                                <option>Concluído</option>
+                            </select>
+                            <select class="p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option>Ordenar por data</option>
+                                <option>Mais recente</option>
+                                <option>Mais antigo</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Horário</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Local</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">15/07/2023</td>
+                                <td class="px-6 py-4 whitespace-nowrap">10:00 - 10:30</td>
+                                <td class="px-6 py-4">Armazém Central</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 py-1 text-sm rounded-full bg-green-100 text-green-800">Confirmado</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <button class="text-blue-600 hover:text-blue-800 mr-3" onclick="rescheduleAppointment(1)">
+                                        <i class="fas fa-calendar-edit"></i> Reagendar
+                                    </button>
+                                    <button class="text-red-600 hover:text-red-800" onclick="cancelAppointment(1)">
+                                        <i class="fas fa-times-circle"></i> Cancelar
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">10/07/2023</td>
+                                <td class="px-6 py-4 whitespace-nowrap">14:00 - 14:30</td>
+                                <td class="px-6 py-4">Almoxarifado Setorial</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 py-1 text-sm rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <button class="text-blue-600 hover:text-blue-800 mr-3" onclick="rescheduleAppointment(2)">
+                                        <i class="fas fa-calendar-edit"></i> Reagendar
+                                    </button>
+                                    <button class="text-red-600 hover:text-red-800" onclick="cancelAppointment(2)">
+                                        <i class="fas fa-times-circle"></i> Cancelar
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">05/07/2023</td>
+                                <td class="px-6 py-4 whitespace-nowrap">09:30 - 10:00</td>
+                                <td class="px-6 py-4">Depósito de Materiais</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 py-1 text-sm rounded-full bg-gray-100 text-gray-800">Concluído</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <button class="text-blue-600 hover:text-blue-800" onclick="viewDetails(3)">
+                                        <i class="fas fa-eye"></i> Detalhes
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">03/07/2023</td>
+                                <td class="px-6 py-4 whitespace-nowrap">11:00 - 11:30</td>
+                                <td class="px-6 py-4">Armazém Central</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 py-1 text-sm rounded-full bg-red-100 text-red-800">Cancelado</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <button class="text-blue-600 hover:text-blue-800" onclick="viewDetails(4)">
+                                        <i class="fas fa-eye"></i> Detalhes
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="mt-6 flex justify-between items-center">
+                    <div class="text-gray-600">
+                        Mostrando 1 a 4 de 4 agendamentos
+                    </div>
+                    <div class="flex gap-2">
+                        <button class="px-3 py-1 border rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed" disabled>
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="px-3 py-1 border rounded-lg bg-blue-600 text-white">
+                            1
+                        </button>
+                        <button class="px-3 py-1 border rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed" disabled>
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                        <i class="fas fa-calendar-check"></i> RetiradaExpress
+                    </h3>
+                    <p class="text-gray-400">Sistema de agendamento de retirada de materiais. Rápido, seguro e eficiente.</p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Links Rápidos</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition" onclick="showSection('home'); return false;">Início</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition" onclick="showSection('schedule'); return false;">Agendar Retirada</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition" onclick="showSection('my-schedules'); return false;">Meus Agendamentos</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition" onclick="showLoginModal(); return false;">Área do Usuário</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Contato</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li class="flex items-center gap-2"><i class="fas fa-envelope"></i> contato@retiradaexpress.com</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-phone"></i> (11) 1234-5678</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-map-marker-alt"></i> Rua Principal, 123 - Centro</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-6 text-center text-gray-400">
+                <p>&copy; 2023 RetiradaExpress. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl w-full max-w-md mx-4 custom-shadow fade-in">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-gray-800">Entrar na conta</h3>
+                    <button onclick="hideLoginModal()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div id="loginForm">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2">E-mail ou Matrícula</label>
+                        <input type="text" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="seu@email.com">
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-gray-700 mb-2">Senha</label>
+                        <input type="password" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="••••••••">
+                    </div>
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="remember" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="remember" class="ml-2 block text-sm text-gray-700">Lembrar de mim</label>
+                        </div>
+                        <a href="#" class="text-sm text-blue-600 hover:text-blue-800">Esqueceu a senha?</a>
+                    </div>
+                    <button class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition mb-4">
+                        Entrar
+                    </button>
+                    <div class="text-center">
+                        <button onclick="showRegisterForm()" class="text-blue-600 hover:text-blue-800 font-medium">
+                            Não tem uma conta? Cadastre-se
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="registerForm" class="hidden">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2">Nome Completo</label>
+                        <input type="text" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="João da Silva">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2">E-mail</label>
+                        <input type="email" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="seu@email.com">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2">Telefone</label>
+                        <input type="tel" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="(11) 98765-4321">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2">Setor/Departamento</label>
+                        <select class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Selecione...</option>
+                            <option>Administrativo</option>
+                            <option>Financeiro</option>
+                            <option>RH</option>
+                            <option>TI</option>
+                            <option>Operações</option>
+                            <option>Outro</option>
+                        </select>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-gray-700 mb-2">Senha</label>
+                        <input type="password" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="••••••••">
+                        <p class="text-xs text-gray-500 mt-1">Mínimo de 8 caracteres</p>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-gray-700 mb-2">Confirmar Senha</label>
+                        <input type="password" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="••••••••">
+                    </div>
+                    <button class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition mb-4">
+                        Cadastrar
+                    </button>
+                    <div class="text-center">
+                        <button onclick="showLoginForm()" class="text-blue-600 hover:text-blue-800 font-medium">
+                            Já tem uma conta? Faça login
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl w-full max-w-md mx-4 custom-shadow fade-in">
+            <div class="p-6 text-center">
+                <div class="text-green-500 text-5xl mb-4">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">Agendamento confirmado!</h3>
+                <p class="text-gray-600 mb-6">Você receberá um e-mail com os detalhes do seu agendamento.</p>
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 text-left">
+                    <div class="flex justify-between mb-2">
+                        <span class="text-gray-600">Código:</span>
+                        <span class="font-medium">#AGD20230706-09</span>
+                    </div>
+                    <div class="flex justify-between mb-2">
+                        <span class="text-gray-600">Data:</span>
+                        <span class="font-medium">06/07/2023</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Horário:</span>
+                        <span class="font-medium">09:00 - 09:30</span>
+                    </div>
+                </div>
+                <button onclick="hideSuccessModal()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function declarations first
+        function showSection(sectionId) {
+            document.querySelectorAll('main section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            document.getElementById(sectionId).classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        function nextScheduleStep() {
+            document.getElementById('scheduleStep1').classList.add('hidden');
+            document.getElementById('scheduleStep2').classList.remove('hidden');
+        }
+
+        function prevScheduleStep() {
+            document.getElementById('scheduleStep2').classList.add('hidden');
+            document.getElementById('scheduleStep1').classList.remove('hidden');
+        }
+
+        function showLoginForm() {
+            document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+        }
+
+        function showRegisterForm() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('registerForm').classList.remove('hidden');
+        }
+
+        function hideLoginModal() {
+            document.getElementById('loginModal').classList.add('hidden');
+        }
+
+        function showLoginModal() {
+            document.getElementById('loginModal').classList.remove('hidden');
+            showLoginForm();
+        }
+
+        function confirmSchedule() {
+            hideLoginModal();
+            document.getElementById('successModal').classList.remove('hidden');
+        }
+
+        function hideSuccessModal() {
+            document.getElementById('successModal').classList.add('hidden');
+            showSection('my-schedules');
+        }
+
+        function rescheduleAppointment(id) {
+            showSection('schedule');
+            alert('Você está reagendando o agendamento #' + id);
+        }
+
+        function cancelAppointment(id) {
+            if (confirm('Tem certeza que deseja cancelar este agendamento?')) {
+                alert('Agendamento #' + id + ' cancelado com sucesso!');
+            }
+        }
+
+        function viewDetails(id) {
+            alert('Detalhes do agendamento #' + id);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            showSection('home');
+        });
+    </script>
+</body>
+</html>
