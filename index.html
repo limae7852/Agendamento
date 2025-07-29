@@ -33,28 +33,27 @@
 </head>
 <body class="bg-gray-50 font-sans">
     <!-- Navigation -->
-    <nav class="bg-blue-600 text-white shadow-lg">
+    <nav class="bg-orange-600 text-white shadow-lg">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center space-x-2">
-                <i class="fas fa-calendar-check text-2xl"></i>
-                <span class="text-xl font-bold">RetiradaExpress</span>
+            <div class="flex items-center">
+                <img src="logo.png" alt="RetiradaExpress Logo" class="h-10">
             </div>
             <div class="hidden md:flex space-x-6">
-                <a href="#" class="hover:text-blue-200 transition" onclick="showSection('home')">Início</a>
-                <a href="#" class="hover:text-blue-200 transition" onclick="showSection('schedule')">Agendar</a>
-                <a href="#" class="hover:text-blue-200 transition" onclick="showSection('my-schedules')">Meus Agendamentos</a>
-                <a href="#" class="hover:text-blue-200 transition" onclick="showLoginModal()">Entrar</a>
+                <a href="#" class="hover:text-orange-200 transition" onclick="showSection('home')">Início</a>
+                <a href="#" class="hover:text-orange-200 transition" onclick="showSection('schedule')">Agendar</a>
+                <a href="#" class="hover:text-orange-200 transition" onclick="showSection('my-schedules')">Meus Agendamentos</a>
+                <a href="#" class="hover:text-orange-200 transition" onclick="showLoginModal()">Entrar</a>
             </div>
             <button class="md:hidden text-xl" onclick="toggleMobileMenu()">
                 <i class="fas fa-bars"></i>
             </button>
         </div>
         <!-- Mobile Menu -->
-        <div id="mobileMenu" class="hidden md:hidden bg-blue-700 px-4 py-2">
-            <a href="#" class="block py-2 hover:text-blue-200 transition" onclick="showSection('home'); toggleMobileMenu()">Início</a>
-            <a href="#" class="block py-2 hover:text-blue-200 transition" onclick="showSection('schedule'); toggleMobileMenu()">Agendar</a>
-            <a href="#" class="block py-2 hover:text-blue-200 transition" onclick="showSection('my-schedules'); toggleMobileMenu()">Meus Agendamentos</a>
-            <a href="#" class="block py-2 hover:text-blue-200 transition" onclick="showLoginModal(); toggleMobileMenu()">Entrar</a>
+        <div id="mobileMenu" class="hidden md:hidden bg-orange-700 px-4 py-2">
+            <a href="#" class="block py-2 hover:text-orange-200 transition" onclick="showSection('home'); toggleMobileMenu()">Início</a>
+            <a href="#" class="block py-2 hover:text-orange-200 transition" onclick="showSection('schedule'); toggleMobileMenu()">Agendar</a>
+            <a href="#" class="block py-2 hover:text-orange-200 transition" onclick="showSection('my-schedules'); toggleMobileMenu()">Meus Agendamentos</a>
+            <a href="#" class="block py-2 hover:text-orange-200 transition" onclick="showLoginModal(); toggleMobileMenu()">Entrar</a>
         </div>
     </nav>
 
@@ -62,11 +61,11 @@
     <main class="container mx-auto px-4 py-8">
         <!-- Home Section -->
         <section id="home" class="fade-in">
-            <div class="bg-gradient-to-r from-blue-500 to-blue-700 rounded-xl p-8 text-white custom-shadow">
+            <div class="bg-gradient-to-r from-orange-500 to-orange-700 rounded-xl p-8 text-white custom-shadow">
                 <h1 class="text-3xl md:text-4xl font-bold mb-4">Agende aqui a retirada do seu material de forma rápida e segura</h1>
                 <p class="text-lg mb-6">Nosso sistema simplificado facilita o agendamento e garante uma experiência tranquila para você.</p>
                 <div class="flex flex-col sm:flex-row gap-4">
-                    <button onclick="showSection('schedule')" class="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition flex items-center justify-center gap-2">
+                    <button onclick="showSection('schedule')" class="bg-white text-orange-600 px-6 py-3 rounded-lg font-semibold hover:bg-orange-50 transition flex items-center justify-center gap-2">
                         <i class="fas fa-calendar-plus"></i> Agendar Retirada
                     </button>
                     <button onclick="showSection('my-schedules')" class="bg-blue-800 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-900 transition flex items-center justify-center gap-2">
@@ -106,7 +105,7 @@
         <!-- Schedule Section -->
         <section id="schedule" class="hidden fade-in">
             <div class="bg-white rounded-xl p-6 custom-shadow">
-                <h2 class="text-2xl font-bold mb-6 text-blue-600 flex items-center gap-2">
+                <h2 class="text-2xl font-bold mb-6 text-orange-600 flex items-center gap-2">
                     <i class="fas fa-calendar-plus"></i> Agendar Retirada
                 </h2>
                 
@@ -151,7 +150,7 @@
                             <div class="calendar-day disabled text-center py-3 text-gray-400 rounded-lg">28</div>
                             <div class="calendar-day disabled text-center py-3 text-gray-400 rounded-lg">29</div>
                             <div class="calendar-day disabled text-center py-3 text-gray-400 rounded-lg">30</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">1</div>
+                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-orange-100">1</div>
                             <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">2</div>
                             <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">3</div>
                             <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">4</div>
@@ -206,8 +205,8 @@
                         </div>
                     </div>
                     
-                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                        <h4 class="font-semibold text-blue-800 mb-2 flex items-center gap-2">
+                    <div class="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
+                        <h4 class="font-semibold text-orange-800 mb-2 flex items-center gap-2">
                             <i class="fas fa-info-circle"></i> Informações importantes:
                         </h4>
                         <ul class="list-disc list-inside text-blue-700 space-y-1">
@@ -218,7 +217,7 @@
                         </ul>
                     </div>
                     
-                    <button type="button" onclick="nextScheduleStep()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition flex items-center justify-center gap-2">
+                    <button type="button" onclick="nextScheduleStep()" class="w-full bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 transition flex items-center justify-center gap-2">
                         <i class="fas fa-arrow-right"></i> Próximo Passo
                     </button>
                 </div>
@@ -226,8 +225,8 @@
                 <div id="scheduleStep2" class="hidden">
                     <h3 class="text-lg font-semibold mb-4 text-gray-700">Passo 2: Confirmar agendamento</h3>
                     
-                    <div class="bg-blue-50 rounded-lg p-6 mb-6">
-                        <h4 class="text-xl font-bold text-blue-800 mb-4">Resumo do Agendamento</h4>
+                    <div class="bg-orange-50 rounded-lg p-6 mb-6">
+                        <h4 class="text-xl font-bold text-orange-800 mb-4">Resumo do Agendamento</h4>
                         <div class="space-y-3">
                             <div class="flex justify-between">
                                 <span class="text-gray-600">Data:</span>
@@ -377,7 +376,7 @@
                         <button class="px-3 py-1 border rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed" disabled>
                             <i class="fas fa-chevron-left"></i>
                         </button>
-                        <button class="px-3 py-1 border rounded-lg bg-blue-600 text-white">
+                        <button class="px-3 py-1 border rounded-lg bg-orange-600 text-white">
                             1
                         </button>
                         <button class="px-3 py-1 border rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed" disabled>
@@ -450,7 +449,7 @@
                         </div>
                         <a href="#" class="text-sm text-blue-600 hover:text-blue-800">Esqueceu a senha?</a>
                     </div>
-                    <button class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition mb-4">
+                    <button class="w-full bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 transition mb-4">
                         Entrar
                     </button>
                     <div class="text-center">
@@ -530,7 +529,7 @@
                         <span class="font-medium">09:00 - 09:30</span>
                     </div>
                 </div>
-                <button onclick="hideSuccessModal()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+                <button onclick="hideSuccessModal()" class="w-full bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 transition">
                     Fechar
                 </button>
             </div>
