@@ -3,612 +3,1525 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Agendamento de Retirada</title>
+    <title>Sistema de RH Completo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .custom-shadow {
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        .sidebar {
+            transition: all 0.3s ease;
         }
-        .fade-in {
-            animation: fadeIn 0.5s ease-in-out;
+        .sidebar.collapsed {
+            width: 70px;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .sidebar.collapsed .sidebar-text {
+            display: none;
         }
-        .calendar-day {
-            transition: all 0.2s ease;
+        .sidebar.collapsed .logo-text {
+            display: none;
         }
-        .calendar-day:hover:not(.disabled) {
-            background-color: #e2e8f0;
+        .sidebar.collapsed .menu-item {
+            justify-content: center;
         }
-        .time-slot {
-            transition: all 0.2s ease;
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
         }
-        .time-slot:hover:not(.booked) {
-            background-color: #e2e8f0;
+        .active-tab {
+            border-bottom: 3px solid #3b82f6;
+            color: #3b82f6;
         }
     </style>
 </head>
-<body class="bg-gray-50 font-sans">
-    <!-- Navigation -->
-    <nav class="bg-orange-600 text-white shadow-lg">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center">
-                <span class="font-bold text-xl">Rossetti - Agendamento de Retira</span>
+<body class="bg-gray-100 font-sans">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div class="sidebar bg-blue-800 text-white w-64 flex flex-col">
+            <div class="p-4 flex items-center space-x-2">
+                <i class="fas fa-user-tie text-2xl"></i>
+                <span class="logo-text text-xl font-bold">RH System Pro</span>
             </div>
-            <div class="hidden md:flex space-x-6">
-                <a href="#" class="hover:text-orange-200 transition" onclick="showSection('home')">Início</a>
-                <a href="#" class="hover:text-orange-200 transition" onclick="showSection('schedule')">Agendar</a>
-                <a href="#" class="hover:text-orange-200 transition" onclick="showSection('my-schedules')">Meus Agendamentos</a>
-                <a href="#" class="hover:text-orange-200 transition" onclick="showLoginModal()">Entrar</a>
+            <div class="flex-1 overflow-y-auto">
+                <nav class="mt-6">
+                    <div class="px-4 py-2">
+                        <div class="text-xs uppercase font-bold text-blue-200 mb-2 sidebar-text">Menu Principal</div>
+                        <a href="#" class="menu-item flex items-center px-4 py-3 text-white hover:bg-blue-700 rounded-lg mb-1" onclick="showSection('dashboard')">
+                            <i class="fas fa-tachometer-alt mr-3"></i>
+                            <span class="sidebar-text">Dashboard</span>
+                        </a>
+                        <a href="#" class="menu-item flex items-center px-4 py-3 text-white hover:bg-blue-700 rounded-lg mb-1" onclick="showSection('employees')">
+                            <i class="fas fa-users mr-3"></i>
+                            <span class="sidebar-text">Funcionários</span>
+                        </a>
+                        <a href="#" class="menu-item flex items-center px-4 py-3 text-white hover:bg-blue-700 rounded-lg mb-1" onclick="showSection('payroll')">
+                            <i class="fas fa-file-invoice-dollar mr-3"></i>
+                            <span class="sidebar-text">Folha de Pagamento</span>
+                        </a>
+                        <a href="#" class="menu-item flex items-center px-4 py-3 text-white hover:bg-blue-700 rounded-lg mb-1" onclick="showSection('performance')">
+                            <i class="fas fa-chart-line mr-3"></i>
+                            <span class="sidebar-text">Desempenho</span>
+                        </a>
+                        <a href="#" class="menu-item flex items-center px-4 py-3 text-white hover:bg-blue-700 rounded-lg mb-1" onclick="showSection('vacations')">
+                            <i class="fas fa-umbrella-beach mr-3"></i>
+                            <span class="sidebar-text">Férias</span>
+                        </a>
+                        <a href="#" class="menu-item flex items-center px-4 py-3 text-white hover:bg-blue-700 rounded-lg mb-1" onclick="showSection('reports')">
+                            <i class="fas fa-chart-pie mr-3"></i>
+                            <span class="sidebar-text">Relatórios</span>
+                        </a>
+                    </div>
+                    <div class="px-4 py-2 mt-6">
+                        <div class="text-xs uppercase font-bold text-blue-200 mb-2 sidebar-text">Configurações</div>
+                        <a href="#" class="menu-item flex items-center px-4 py-3 text-white hover:bg-blue-700 rounded-lg mb-1" onclick="showSection('settings')">
+                            <i class="fas fa-cog mr-3"></i>
+                            <span class="sidebar-text">Configurações</span>
+                        </a>
+                    </div>
+                </nav>
             </div>
-            <button class="md:hidden text-xl" onclick="toggleMobileMenu()">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
-        <!-- Mobile Menu -->
-        <div id="mobileMenu" class="hidden md:hidden bg-orange-700 px-4 py-2">
-            <a href="#" class="block py-2 hover:text-orange-200 transition" onclick="showSection('home'); toggleMobileMenu()">Início</a>
-            <a href="#" class="block py-2 hover:text-orange-200 transition" onclick="showSection('schedule'); toggleMobileMenu()">Agendar</a>
-            <a href="#" class="block py-2 hover:text-orange-200 transition" onclick="showSection('my-schedules'); toggleMobileMenu()">Meus Agendamentos</a>
-            <a href="#" class="block py-2 hover:text-orange-200 transition" onclick="showLoginModal(); toggleMobileMenu()">Entrar</a>
-        </div>
-    </nav>
-
-    <!-- Main Content -->
-    <main class="container mx-auto px-4 py-8">
-        <!-- Home Section -->
-        <section id="home" class="fade-in">
-            <div class="bg-gradient-to-r from-orange-500 to-orange-700 rounded-xl p-8 text-white custom-shadow">
-                <h1 class="text-3xl md:text-4xl font-bold mb-4">Agende aqui a retirada do seu material de forma rápida e segura</h1>
-                <p class="text-lg mb-6">Nosso sistema simplificado facilita o agendamento e garante uma experiência tranquila para você.</p>
-                <div class="flex flex-col sm:flex-row gap-4">
-                    <button onclick="showSection('schedule')" class="bg-white text-orange-600 px-6 py-3 rounded-lg font-semibold hover:bg-orange-50 transition flex items-center justify-center gap-2">
-                        <i class="fas fa-calendar-plus"></i> Agendar Retirada
-                    </button>
-                    <button onclick="showSection('my-schedules')" class="bg-transparent border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-orange-600 transition flex items-center justify-center gap-2">
-                        <i class="fas fa-search"></i> Consultar Agendamento
-                    </button>
-                    <button onclick="showLoginModal()" class="bg-transparent border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-orange-600 transition flex items-center justify-center gap-2">
-                        <i class="fas fa-user"></i> Entrar / Cadastrar
-                    </button>
-                </div>
-            </div>
-
-            <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-white p-6 rounded-xl custom-shadow">
-                    <div class="text-orange-600 mb-4">
-                        <i class="fas fa-clock text-3xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2">Agendamento Rápido</h3>
-                    <p class="text-gray-600">Escolha a data e horário que melhor se encaixam na sua agenda em poucos cliques.</p>
-                </div>
-                <div class="bg-white p-6 rounded-xl custom-shadow">
-                    <div class="text-orange-600 mb-4">
-                        <i class="fas fa-bell text-3xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2">Lembretes Automáticos</h3>
-                    <p class="text-gray-600">Receba notificações por e-mail para não esquecer do seu agendamento.</p>
-                </div>
-                <div class="bg-white p-6 rounded-xl custom-shadow">
-                    <div class="text-orange-600 mb-4">
-                        <i class="fas fa-shield-alt text-3xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2">Processo Seguro</h3>
-                    <p class="text-gray-600">Sistema protegido com autenticação e confirmação de identidade na retirada.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Schedule Section -->
-        <section id="schedule" class="hidden fade-in">
-            <div class="bg-white rounded-xl p-6 custom-shadow">
-                <h2 class="text-2xl font-bold mb-6 text-orange-600 flex items-center gap-2">
-                    <i class="fas fa-calendar-plus"></i> Agendar Retirada
-                </h2>
-                
-                <div id="scheduleStep1">
-                    <h3 class="text-lg font-semibold mb-4 text-gray-700">Passo 1: Escolha a data e horário</h3>
-                    
-                    <div class="mb-6">
-                        <label class="block text-gray-700 mb-2">Local de Retirada:</label>
-                        <select class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
-                            <option>Armazém Central - Rua Principal, 123</option>
-                            <option>Almoxarifado Setorial - Bloco B</option>
-                            <option>Depósito de Materiais - Pátio 3</option>
-                        </select>
-                    </div>
-                    
-                    <div class="mb-6">
-                        <label class="block text-gray-700 mb-2">Selecione o mês:</label>
-                        <div class="flex justify-between items-center mb-4">
-                            <button type="button" class="p-2 rounded-full hover:bg-gray-100" aria-label="Mês anterior">
-                                <i class="fas fa-chevron-left"></i>
-                            </button>
-                            <span class="font-semibold">Julho 2023</span>
-                            <button type="button" class="p-2 rounded-full hover:bg-gray-100" aria-label="Próximo mês">
-                                <i class="fas fa-chevron-right"></i>
-                            </button>
-                        </div>
-                        
-                        <div class="grid grid-cols-7 gap-2 mb-2">
-                            <div class="text-center font-semibold text-gray-500 py-2">Dom</div>
-                            <div class="text-center font-semibold text-gray-500 py-2">Seg</div>
-                            <div class="text-center font-semibold text-gray-500 py-2">Ter</div>
-                            <div class="text-center font-semibold text-gray-500 py-2">Qua</div>
-                            <div class="text-center font-semibold text-gray-500 py-2">Qui</div>
-                            <div class="text-center font-semibold text-gray-500 py-2">Sex</div>
-                            <div class="text-center font-semibold text-gray-500 py-2">Sáb</div>
-                        </div>
-                        
-                        <div class="grid grid-cols-7 gap-2">
-                            <div class="calendar-day disabled text-center py-3 text-gray-400 rounded-lg">25</div>
-                            <div class="calendar-day disabled text-center py-3 text-gray-400 rounded-lg">26</div>
-                            <div class="calendar-day disabled text-center py-3 text-gray-400 rounded-lg">27</div>
-                            <div class="calendar-day disabled text-center py-3 text-gray-400 rounded-lg">28</div>
-                            <div class="calendar-day disabled text-center py-3 text-gray-400 rounded-lg">29</div>
-                            <div class="calendar-day disabled text-center py-3 text-gray-400 rounded-lg">30</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-orange-100">1</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-orange-100">2</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-orange-100">3</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-orange-100">4</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-orange-100">5</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-orange-100 bg-orange-100 border border-orange-500">6</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-orange-100">7</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">8</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">9</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">10</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">11</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">12</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">13</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">14</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">15</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">16</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">17</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">18</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">19</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">20</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">21</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">22</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">23</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">24</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">25</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">26</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">27</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">28</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">29</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">30</div>
-                            <div class="calendar-day text-center py-3 rounded-lg cursor-pointer hover:bg-blue-100">31</div>
-                            <div class="calendar-day disabled text-center py-3 text-gray-400 rounded-lg">1</div>
-                            <div class="calendar-day disabled text-center py-3 text-gray-400 rounded-lg">2</div>
-                            <div class="calendar-day disabled text-center py-3 text-gray-400 rounded-lg">3</div>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-6">
-                        <label class="block text-gray-700 mb-2">Horários disponíveis para 06/07/2023:</label>
-                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                            <div class="time-slot booked text-center py-2 px-4 border rounded-lg bg-gray-100 text-gray-400 cursor-not-allowed">08:00 - 08:30</div>
-                            <div class="time-slot booked text-center py-2 px-4 border rounded-lg bg-gray-100 text-gray-400 cursor-not-allowed">08:30 - 09:00</div>
-                            <div class="time-slot text-center py-2 px-4 border rounded-lg cursor-pointer hover:bg-blue-100">09:00 - 09:30</div>
-                            <div class="time-slot text-center py-2 px-4 border rounded-lg cursor-pointer hover:bg-blue-100">09:30 - 10:00</div>
-                            <div class="time-slot text-center py-2 px-4 border rounded-lg cursor-pointer hover:bg-blue-100">10:00 - 10:30</div>
-                            <div class="time-slot text-center py-2 px-4 border rounded-lg cursor-pointer hover:bg-blue-100">10:30 - 11:00</div>
-                            <div class="time-slot booked text-center py-2 px-4 border rounded-lg bg-gray-100 text-gray-400 cursor-not-allowed">11:00 - 11:30</div>
-                            <div class="time-slot text-center py-2 px-4 border rounded-lg cursor-pointer hover:bg-blue-100">11:30 - 12:00</div>
-                            <div class="time-slot text-center py-2 px-4 border rounded-lg cursor-pointer hover:bg-blue-100">13:00 - 13:30</div>
-                            <div class="time-slot text-center py-2 px-4 border rounded-lg cursor-pointer hover:bg-blue-100">13:30 - 14:00</div>
-                            <div class="time-slot text-center py-2 px-4 border rounded-lg cursor-pointer hover:bg-blue-100">14:00 - 14:30</div>
-                            <div class="time-slot text-center py-2 px-4 border rounded-lg cursor-pointer hover:bg-blue-100">14:30 - 15:00</div>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
-                        <h4 class="font-semibold text-orange-800 mb-2 flex items-center gap-2">
-                            <i class="fas fa-info-circle"></i> Informações importantes:
-                        </h4>
-                        <ul class="list-disc list-inside text-orange-700 space-y-1">
-                            <li>Retirada permitida apenas em dias úteis (segunda a sexta)</li>
-                            <li>Agendamento com no mínimo 24h de antecedência</li>
-                            <li>Trazer documento de identificação no dia da retirada</li>
-                            <li>Horário de funcionamento: 08:00 às 11:00 e das 13:30 às 16:30</li>
-                        </ul>
-                    </div>
-                    
-                    <button type="button" onclick="nextScheduleStep()" class="w-full bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 transition flex items-center justify-center gap-2">
-                        <i class="fas fa-arrow-right"></i> Próximo Passo
-                    </button>
-                </div>
-                
-                <div id="scheduleStep2" class="hidden">
-                    <h3 class="text-lg font-semibold mb-4 text-gray-700">Passo 2: Confirmar agendamento</h3>
-                    
-                    <div class="bg-orange-50 rounded-lg p-6 mb-6">
-                        <h4 class="text-xl font-bold text-orange-800 mb-4">Resumo do Agendamento</h4>
-                        <div class="space-y-3">
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">Data:</span>
-                                <span class="font-medium">06/07/2023</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">Horário:</span>
-                                <span class="font-medium">09:00 - 09:30</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">Local:</span>
-                                <span class="font-medium">Armazém Central - Rua Principal, 123</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">Status:</span>
-                                <span class="font-medium text-green-600">Disponível</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-6">
-                        <label class="block text-gray-700 mb-2">Observações (opcional):</label>
-                        <textarea class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" rows="3" placeholder="Ex: Material frágil, necessita cuidado especial"></textarea>
-                    </div>
-                    
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <button type="button" onclick="prevScheduleStep()" class="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition flex items-center justify-center gap-2">
-                            <i class="fas fa-arrow-left"></i> Voltar
-                        </button>
-                        <button type="button" onclick="confirmSchedule()" class="flex-1 bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition flex items-center justify-center gap-2">
-                            <i class="fas fa-check"></i> Confirmar Agendamento
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- My Schedules Section -->
-        <section id="my-schedules" class="hidden fade-in">
-            <div class="bg-white rounded-xl p-6 custom-shadow">
-                <h2 class="text-2xl font-bold mb-6 text-blue-600 flex items-center gap-2">
-                    <i class="fas fa-calendar-alt"></i> Meus Agendamentos
-                </h2>
-                
-                <div class="mb-6">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <div class="relative w-full sm:w-64">
-                            <input type="text" placeholder="Buscar agendamento..." class="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-                        </div>
-                        <div class="flex gap-2 w-full sm:w-auto">
-                            <select class="p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                <option>Todos os status</option>
-                                <option>Confirmado</option>
-                                <option>Pendente</option>
-                                <option>Cancelado</option>
-                                <option>Concluído</option>
-                            </select>
-                            <select class="p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                <option>Ordenar por data</option>
-                                <option>Mais recente</option>
-                                <option>Mais antigo</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Horário</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Local</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">15/07/2023</td>
-                                <td class="px-6 py-4 whitespace-nowrap">10:00 - 10:30</td>
-                                <td class="px-6 py-4">Armazém Central</td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 py-1 text-sm rounded-full bg-orange-100 text-orange-800">Confirmado</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <button class="text-orange-600 hover:text-orange-800 mr-3" onclick="rescheduleAppointment(1)">
-                                        <i class="fas fa-calendar-edit"></i> Reagendar
-                                    </button>
-                                    <button class="text-red-600 hover:text-red-800" onclick="cancelAppointment(1)">
-                                        <i class="fas fa-times-circle"></i> Cancelar
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">10/07/2023</td>
-                                <td class="px-6 py-4 whitespace-nowrap">14:00 - 14:30</td>
-                                <td class="px-6 py-4">Almoxarifado Setorial</td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 py-1 text-sm rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <button class="text-blue-600 hover:text-blue-800 mr-3" onclick="rescheduleAppointment(2)">
-                                        <i class="fas fa-calendar-edit"></i> Reagendar
-                                    </button>
-                                    <button class="text-red-600 hover:text-red-800" onclick="cancelAppointment(2)">
-                                        <i class="fas fa-times-circle"></i> Cancelar
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">05/07/2023</td>
-                                <td class="px-6 py-4 whitespace-nowrap">09:30 - 10:00</td>
-                                <td class="px-6 py-4">Depósito de Materiais</td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 py-1 text-sm rounded-full bg-gray-100 text-gray-800">Concluído</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <button class="text-blue-600 hover:text-blue-800" onclick="viewDetails(3)">
-                                        <i class="fas fa-eye"></i> Detalhes
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">03/07/2023</td>
-                                <td class="px-6 py-4 whitespace-nowrap">11:00 - 11:30</td>
-                                <td class="px-6 py-4">Armazém Central</td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 py-1 text-sm rounded-full bg-red-100 text-red-800">Cancelado</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <button class="text-blue-600 hover:text-blue-800" onclick="viewDetails(4)">
-                                        <i class="fas fa-eye"></i> Detalhes
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                
-                <div class="mt-6 flex justify-between items-center">
-                    <div class="text-gray-600">
-                        Mostrando 1 a 4 de 4 agendamentos
-                    </div>
-                    <div class="flex gap-2">
-                        <button class="px-3 py-1 border rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed" disabled>
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                        <button class="px-3 py-1 border rounded-lg bg-orange-600 text-white">
-                            1
-                        </button>
-                        <button class="px-3 py-1 border rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed" disabled>
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-8">
-        <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div>
-                    <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
-                        <i class="fas fa-calendar-check"></i> RetiradaExpress
-                    </h3>
-                    <p class="text-gray-400">Sistema de agendamento de retirada de materiais. Rápido, seguro e eficiente.</p>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Links Rápidos</h3>
-                    <ul class="space-y-2">
-                        <li><a href="#" class="text-gray-400 hover:text-orange-300 transition" onclick="showSection('home'); return false;">Início</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-orange-300 transition" onclick="showSection('schedule'); return false;">Agendar Retirada</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-orange-300 transition" onclick="showSection('my-schedules'); return false;">Meus Agendamentos</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-orange-300 transition" onclick="showLoginModal(); return false;">Área do Usuário</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Contato</h3>
-                    <ul class="space-y-2 text-gray-400">
-                        <li class="flex items-center gap-2"><i class="fas fa-envelope"></i> contato@retiradaexpress.com</li>
-                        <li class="flex items-center gap-2"><i class="fas fa-phone"></i> (11) 1234-5678</li>
-                        <li class="flex items-center gap-2"><i class="fas fa-map-marker-alt"></i> Rua Principal, 123 - Centro</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="border-t border-gray-700 mt-8 pt-6 text-center text-gray-400">
-                <p>&copy; Rossetti Filhos Industria e Comercio LTDA | Todos os direitos reservados.</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Login Modal -->
-    <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-xl w-full max-w-md mx-4 custom-shadow fade-in">
-            <div class="p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-2xl font-bold text-gray-800">Entrar na conta</h3>
-                    <button onclick="hideLoginModal()" class="text-gray-500 hover:text-gray-700">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                
-                <div id="loginForm">
-                    <div class="mb-4">
-                        <label class="block text-gray-700 mb-2">E-mail ou Matrícula</label>
-                        <input type="text" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="seu@email.com">
-                    </div>
-                    <div class="mb-6">
-                        <label class="block text-gray-700 mb-2">Senha</label>
-                        <input type="password" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="••••••••">
-                    </div>
-                    <div class="flex items-center justify-between mb-6">
-                        <div class="flex items-center">
-                            <input type="checkbox" id="remember" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                            <label for="remember" class="ml-2 block text-sm text-gray-700">Lembrar de mim</label>
-                        </div>
-                        <a href="#" class="text-sm text-orange-600 hover:text-orange-800">Esqueceu a senha?</a>
-                    </div>
-                    <button class="w-full bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 transition mb-4">
-                        Entrar
-                    </button>
-                    <div class="text-center">
-                        <button onclick="showRegisterForm()" class="text-orange-600 hover:text-orange-800 font-medium">
-                            Não tem uma conta? Cadastre-se
-                        </button>
-                    </div>
-                </div>
-                
-                <div id="registerForm" class="hidden">
-                    <div class="mb-4">
-                        <label class="block text-gray-700 mb-2">Nome Completo</label>
-                        <input type="text" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="João da Silva">
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 mb-2">E-mail</label>
-                        <input type="email" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="seu@email.com">
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 mb-2">Telefone</label>
-                        <input type="tel" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="(11) 98765-4321">
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 mb-2">Setor/Departamento</label>
-                        <select class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            <option value="">Selecione...</option>
-                            <option>Administrativo</option>
-                            <option>Financeiro</option>
-                            <option>RH</option>
-                            <option>TI</option>
-                            <option>Operações</option>
-                            <option>Outro</option>
-                        </select>
-                    </div>
-                    <div class="mb-6">
-                        <label class="block text-gray-700 mb-2">Senha</label>
-                        <input type="password" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="••••••••">
-                        <p class="text-xs text-gray-500 mt-1">Mínimo de 8 caracteres</p>
-                    </div>
-                    <div class="mb-6">
-                        <label class="block text-gray-700 mb-2">Confirmar Senha</label>
-                        <input type="password" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="••••••••">
-                    </div>
-                    <button class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition mb-4">
-                        Cadastrar
-                    </button>
-                    <div class="text-center">
-                        <button onclick="showLoginForm()" class="text-blue-600 hover:text-blue-800 font-medium">
-                            Já tem uma conta? Faça login
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Success Modal -->
-    <div id="successModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-xl w-full max-w-md mx-4 custom-shadow fade-in">
-            <div class="p-6 text-center">
-                <div class="text-green-500 text-5xl mb-4">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <h3 class="text-2xl font-bold text-gray-800 mb-2">Agendamento confirmado!</h3>
-                <p class="text-gray-600 mb-6">Você receberá um e-mail com os detalhes do seu agendamento.</p>
-                <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 text-left">
-                    <div class="flex justify-between mb-2">
-                        <span class="text-gray-600">Código:</span>
-                        <span class="font-medium">#AGD20230706-09</span>
-                    </div>
-                    <div class="flex justify-between mb-2">
-                        <span class="text-gray-600">Data:</span>
-                        <span class="font-medium">06/07/2023</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Horário:</span>
-                        <span class="font-medium">09:00 - 09:30</span>
-                    </div>
-                </div>
-                <button onclick="hideSuccessModal()" class="w-full bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 transition">
-                    Fechar
+            <div class="p-4 border-t border-blue-700">
+                <button onclick="toggleSidebar()" class="flex items-center justify-center w-full py-2 text-white hover:bg-blue-700 rounded-lg">
+                    <i class="fas fa-chevron-left"></i>
+                    <span class="ml-2 sidebar-text">Recolher Menu</span>
                 </button>
             </div>
         </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 overflow-auto">
+            <!-- Top Navigation -->
+            <header class="bg-white shadow-sm">
+                <div class="flex justify-between items-center px-6 py-4">
+                    <div class="flex items-center">
+                        <button class="mr-4 text-gray-500 hover:text-gray-700" onclick="toggleSidebar()">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <h1 class="text-xl font-semibold text-gray-800" id="page-title">Dashboard</h1>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <button class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-bell"></i>
+                                <span class="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
+                            </button>
+                        </div>
+                        <div class="flex items-center">
+                            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Profile" class="h-8 w-8 rounded-full">
+                            <span class="ml-2 text-gray-700">Admin</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <main class="p-6">
+                <!-- Dashboard Section -->
+                <div id="dashboard-section" class="section-content">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500">Total Funcionários</p>
+                                    <h3 class="text-2xl font-bold">142</h3>
+                                </div>
+                                <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <span class="text-green-500 text-sm font-semibold">+5.2%</span>
+                                <span class="text-gray-500 text-sm ml-2">vs último mês</span>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500">Férias Pendentes</p>
+                                    <h3 class="text-2xl font-bold">18</h3>
+                                </div>
+                                <div class="p-3 rounded-full bg-orange-100 text-orange-600">
+                                    <i class="fas fa-umbrella-beach"></i>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <span class="text-red-500 text-sm font-semibold">+2.1%</span>
+                                <span class="text-gray-500 text-sm ml-2">vs último mês</span>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500">Folha de Pagamento</p>
+                                    <h3 class="text-2xl font-bold">R$ 342,589</h3>
+                                </div>
+                                <div class="p-3 rounded-full bg-green-100 text-green-600">
+                                    <i class="fas fa-file-invoice-dollar"></i>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <span class="text-green-500 text-sm font-semibold">+3.8%</span>
+                                <span class="text-gray-500 text-sm ml-2">vs último mês</span>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500">Avaliações Pendentes</p>
+                                    <h3 class="text-2xl font-bold">27</h3>
+                                </div>
+                                <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <span class="text-red-500 text-sm font-semibold">+4.3%</span>
+                                <span class="text-gray-500 text-sm ml-2">vs último mês</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                        <div class="bg-white rounded-lg shadow p-6 lg:col-span-2">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-lg font-semibold">Contratações Mensais</h2>
+                                <select class="border rounded px-3 py-1 text-sm">
+                                    <option>Últimos 6 meses</option>
+                                    <option>Último ano</option>
+                                    <option>Últimos 2 anos</option>
+                                </select>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="hiringChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h2 class="text-lg font-semibold mb-4">Departamentos</h2>
+                            <div class="chart-container">
+                                <canvas id="departmentChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow overflow-hidden">
+                        <div class="px-6 py-4 border-b">
+                            <h2 class="text-lg font-semibold">Atividades Recentes</h2>
+                        </div>
+                        <div class="divide-y">
+                            <div class="px-6 py-4 flex items-start">
+                                <div class="bg-blue-100 p-2 rounded-full mr-4">
+                                    <i class="fas fa-user-plus text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium">Novo funcionário contratado</p>
+                                    <p class="text-gray-500 text-sm">João Silva foi contratado como Desenvolvedor Front-end</p>
+                                    <p class="text-gray-400 text-xs mt-1">2 horas atrás</p>
+                                </div>
+                            </div>
+                            <div class="px-6 py-4 flex items-start">
+                                <div class="bg-green-100 p-2 rounded-full mr-4">
+                                    <i class="fas fa-file-invoice-dollar text-green-600"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium">Folha de pagamento processada</p>
+                                    <p class="text-gray-500 text-sm">Folha de pagamento de maio foi processada com sucesso</p>
+                                    <p class="text-gray-400 text-xs mt-1">1 dia atrás</p>
+                                </div>
+                            </div>
+                            <div class="px-6 py-4 flex items-start">
+                                <div class="bg-orange-100 p-2 rounded-full mr-4">
+                                    <i class="fas fa-umbrella-beach text-orange-600"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium">Solicitação de férias aprovada</p>
+                                    <p class="text-gray-500 text-sm">Maria Souza teve suas férias aprovadas para julho</p>
+                                    <p class="text-gray-400 text-xs mt-1">2 dias atrás</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Employees Section -->
+                <div id="employees-section" class="section-content hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-semibold">Funcionários</h2>
+                        <button onclick="showEmployeeModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center">
+                            <i class="fas fa-plus mr-2"></i> Adicionar Funcionário
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
+                        <div class="px-6 py-4 border-b flex justify-between items-center">
+                            <div class="flex items-center">
+                                <input type="text" placeholder="Pesquisar funcionário..." class="border rounded px-4 py-2 w-64">
+                                <button class="ml-2 bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                            <div>
+                                <select class="border rounded px-3 py-2">
+                                    <option>Todos Departamentos</option>
+                                    <option>TI</option>
+                                    <option>RH</option>
+                                    <option>Financeiro</option>
+                                    <option>Marketing</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cargo</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Departamento</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data Contratação</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200" id="employees-table-body">
+                                    <!-- Employee data will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="px-6 py-4 border-t flex justify-between items-center">
+                            <div class="text-sm text-gray-500">
+                                Mostrando 1 a 10 de 142 funcionários
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="px-3 py-1 border rounded-md bg-gray-100">Anterior</button>
+                                <button class="px-3 py-1 border rounded-md bg-blue-600 text-white">1</button>
+                                <button class="px-3 py-1 border rounded-md hover:bg-gray-100">2</button>
+                                <button class="px-3 py-1 border rounded-md hover:bg-gray-100">3</button>
+                                <button class="px-3 py-1 border rounded-md hover:bg-gray-100">Próximo</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payroll Section -->
+                <div id="payroll-section" class="section-content hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-semibold">Folha de Pagamento</h2>
+                        <div class="flex space-x-4">
+                            <button onclick="exportPayroll()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center">
+                                <i class="fas fa-file-export mr-2"></i> Exportar
+                            </button>
+                            <button onclick="showPayrollProcessModal()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center">
+                                <i class="fas fa-calculator mr-2"></i> Processar Folha
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
+                        <div class="px-6 py-4 border-b flex justify-between items-center">
+                            <div class="flex items-center space-x-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Mês</label>
+                                    <select class="border rounded px-3 py-2">
+                                        <option>Junho 2023</option>
+                                        <option>Maio 2023</option>
+                                        <option>Abril 2023</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                                    <select class="border rounded px-3 py-2">
+                                        <option>Todos</option>
+                                        <option>Pago</option>
+                                        <option>Pendente</option>
+                                        <option>Processando</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <input type="text" placeholder="Pesquisar..." class="border rounded px-4 py-2 w-64">
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Funcionário</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cargo</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Salário Base</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Horas Extras</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descontos</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Líquido</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200" id="payroll-table-body">
+                                    <!-- Payroll data will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="px-6 py-4 border-t flex justify-between items-center">
+                            <div class="text-sm text-gray-500">
+                                Mostrando 1 a 10 de 142 registros
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="px-3 py-1 border rounded-md bg-gray-100">Anterior</button>
+                                <button class="px-3 py-1 border rounded-md bg-blue-600 text-white">1</button>
+                                <button class="px-3 py-1 border rounded-md hover:bg-gray-100">2</button>
+                                <button class="px-3 py-1 border rounded-md hover:bg-gray-100">3</button>
+                                <button class="px-3 py-1 border rounded-md hover:bg-gray-100">Próximo</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Section -->
+                <div id="performance-section" class="section-content hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-semibold">Avaliação de Desempenho</h2>
+                        <div class="flex space-x-4">
+                            <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center">
+                                <i class="fas fa-plus mr-2"></i> Nova Avaliação
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h3 class="text-lg font-semibold mb-4">Métricas de Desempenho</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm font-medium">Excelente</span>
+                                        <span class="text-sm font-medium">12%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div class="bg-green-600 h-2.5 rounded-full" style="width: 12%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm font-medium">Bom</span>
+                                        <span class="text-sm font-medium">45%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div class="bg-blue-600 h-2.5 rounded-full" style="width: 45%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm font-medium">Regular</span>
+                                        <span class="text-sm font-medium">32%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div class="bg-yellow-500 h-2.5 rounded-full" style="width: 32%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm font-medium">Necessita Melhoria</span>
+                                        <span class="text-sm font-medium">11%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div class="bg-red-600 h-2.5 rounded-full" style="width: 11%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow p-6 lg:col-span-2">
+                            <h3 class="text-lg font-semibold mb-4">Avaliações Pendentes</h3>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Funcionário</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cargo</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Última Avaliação</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Próxima Avaliação</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <div class="flex-shrink-0 h-10 w-10">
+                                                        <img class="h-10 w-10 rounded-full" src="https://randomuser.me/api/portraits/men/32.jpg" alt="">
+                                                    </div>
+                                                    <div class="ml-4">
+                                                        <div class="text-sm font-medium text-gray-900">Carlos Silva</div>
+                                                        <div class="text-sm text-gray-500">TI</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm text-gray-900">Desenvolvedor Sênior</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">8.5</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">15/07/2023</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                <a href="#" class="text-blue-600 hover:text-blue-900">Avaliar</a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <div class="flex-shrink-0 h-10 w-10">
+                                                        <img class="h-10 w-10 rounded-full" src="https://randomuser.me/api/portraits/women/44.jpg" alt="">
+                                                    </div>
+                                                    <div class="ml-4">
+                                                        <div class="text-sm font-medium text-gray-900">Ana Souza</div>
+                                                        <div class="text-sm text-gray-500">RH</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm text-gray-900">Analista de RH</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">7.2</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">20/07/2023</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                <a href="#" class="text-blue-600 hover:text-blue-900">Avaliar</a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow overflow-hidden">
+                        <div class="px-6 py-4 border-b">
+                            <h3 class="text-lg font-semibold">Histórico de Avaliações</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Funcionário</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data Avaliação</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avaliador</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nota</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Feedback</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="flex-shrink-0 h-10 w-10">
+                                                    <img class="h-10 w-10 rounded-full" src="https://randomuser.me/api/portraits/men/32.jpg" alt="">
+                                                </div>
+                                                <div class="ml-4">
+                                                    <div class="text-sm font-medium text-gray-900">Carlos Silva</div>
+                                                    <div class="text-sm text-gray-500">TI</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">15/01/2023</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Roberto Almeida</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">8.5</span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-gray-500">Excelente desempenho no projeto X, demonstrou grande capacidade técnica e liderança.</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">Ver</a>
+                                            <a href="#" class="text-red-600 hover:text-red-900">Excluir</a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vacations Section -->
+                <div id="vacations-section" class="section-content hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-semibold">Gerenciamento de Férias</h2>
+                        <button onclick="showVacationModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center">
+                            <i class="fas fa-plus mr-2"></i> Solicitar Férias
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h3 class="text-lg font-semibold mb-4">Resumo de Férias</h3>
+                            <div class="space-y-4">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Dias Disponíveis</span>
+                                    <span class="font-semibold">30 dias</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Dias Usados</span>
+                                    <span class="font-semibold">10 dias</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Dias Restantes</span>
+                                    <span class="font-semibold">20 dias</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Próximas Férias</span>
+                                    <span class="font-semibold">15/08/2023</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow p-6 lg:col-span-2">
+                            <h3 class="text-lg font-semibold mb-4">Solicitações Pendentes</h3>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Funcionário</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Período</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dias</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <div class="flex-shrink-0 h-10 w-10">
+                                                        <img class="h-10 w-10 rounded-full" src="https://randomuser.me/api/portraits/men/32.jpg" alt="">
+                                                    </div>
+                                                    <div class="ml-4">
+                                                        <div class="text-sm font-medium text-gray-900">Carlos Silva</div>
+                                                        <div class="text-sm text-gray-500">TI</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm text-gray-900">15/08/2023 - 30/08/2023</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">15 dias</td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                <a href="#" onclick="approveVacation()" class="text-green-600 hover:text-green-900 mr-3">Aprovar</a>
+                                                <a href="#" onclick="rejectVacation()" class="text-red-600 hover:text-red-900">Recusar</a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow overflow-hidden">
+                        <div class="px-6 py-4 border-b">
+                            <h3 class="text-lg font-semibold">Histórico de Férias</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Funcionário</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Período</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dias</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aprovado Por</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="flex-shrink-0 h-10 w-10">
+                                                    <img class="h-10 w-10 rounded-full" src="https://randomuser.me/api/portraits/men/32.jpg" alt="">
+                                                </div>
+                                                <div class="ml-4">
+                                                    <div class="text-sm font-medium text-gray-900">Carlos Silva</div>
+                                                    <div class="text-sm text-gray-500">TI</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">15/01/2023 - 30/01/2023</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">15 dias</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Aprovado</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Roberto Almeida</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reports Section -->
+                <div id="reports-section" class="section-content hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-semibold">Relatórios</h2>
+                        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center">
+                            <i class="fas fa-file-export mr-2"></i> Exportar Relatório
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow p-6 mb-6">
+                        <div class="flex border-b mb-6">
+                            <button class="px-4 py-2 font-medium active-tab" onclick="changeReportTab('employees')">Funcionários</button>
+                            <button class="px-4 py-2 font-medium" onclick="changeReportTab('payroll')">Folha de Pagamento</button>
+                            <button class="px-4 py-2 font-medium" onclick="changeReportTab('performance')">Desempenho</button>
+                            <button class="px-4 py-2 font-medium" onclick="changeReportTab('vacations')">Férias</button>
+                        </div>
+
+                        <div id="employees-report" class="report-tab">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Relatório</label>
+                                    <select class="border rounded px-3 py-2 w-full">
+                                        <option>Lista Completa de Funcionários</option>
+                                        <option>Novas Contratações</option>
+                                        <option>Demissões</option>
+                                        <option>Funcionários por Departamento</option>
+                                        <option>Funcionários por Cargo</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Período</label>
+                                    <div class="flex space-x-2">
+                                        <input type="date" class="border rounded px-3 py-2 flex-1">
+                                        <span class="flex items-center">a</span>
+                                        <input type="date" class="border rounded px-3 py-2 flex-1">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Filtros Adicionais</label>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <select class="border rounded px-3 py-2">
+                                        <option>Todos Departamentos</option>
+                                        <option>TI</option>
+                                        <option>RH</option>
+                                        <option>Financeiro</option>
+                                    </select>
+                                    <select class="border rounded px-3 py-2">
+                                        <option>Todos Cargos</option>
+                                        <option>Desenvolvedor</option>
+                                        <option>Analista</option>
+                                        <option>Gerente</option>
+                                    </select>
+                                    <select class="border rounded px-3 py-2">
+                                        <option>Todos Status</option>
+                                        <option>Ativo</option>
+                                        <option>Férias</option>
+                                        <option>Licença</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg mt-4">
+                                Gerar Relatório
+                            </button>
+                        </div>
+
+                        <div id="payroll-report" class="report-tab hidden">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Relatório</label>
+                                    <select class="border rounded px-3 py-2 w-full">
+                                        <option>Folha de Pagamento Mensal</option>
+                                        <option>Resumo Anual</option>
+                                        <option>Benefícios</option>
+                                        <option>Descontos</option>
+                                        <option>Horas Extras</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Mês/Ano</label>
+                                    <input type="month" class="border rounded px-3 py-2 w-full">
+                                </div>
+                            </div>
+                            <button class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg">
+                                Gerar Relatório
+                            </button>
+                        </div>
+
+                        <div id="performance-report" class="report-tab hidden">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Relatório</label>
+                                    <select class="border rounded px-3 py-2 w-full">
+                                        <option>Avaliações de Desempenho</option>
+                                        <option>Progressão de Carreira</option>
+                                        <option>Treinamentos Concluídos</option>
+                                        <option>Metas Alcançadas</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Período</label>
+                                    <div class="flex space-x-2">
+                                        <input type="date" class="border rounded px-3 py-2 flex-1">
+                                        <span class="flex items-center">a</span>
+                                        <input type="date" class="border rounded px-3 py-2 flex-1">
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg">
+                                Gerar Relatório
+                            </button>
+                        </div>
+
+                        <div id="vacations-report" class="report-tab hidden">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Relatório</label>
+                                    <select class="border rounded px-3 py-2 w-full">
+                                        <option>Férias Agendadas</option>
+                                        <option>Histórico de Férias</option>
+                                        <option>Solicitações Pendentes</option>
+                                        <option>Saldo de Férias</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Período</label>
+                                    <div class="flex space-x-2">
+                                        <input type="date" class="border rounded px-3 py-2 flex-1">
+                                        <span class="flex items-center">a</span>
+                                        <input type="date" class="border rounded px-3 py-2 flex-1">
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg">
+                                Gerar Relatório
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Section -->
+                <div id="settings-section" class="section-content hidden">
+                    <h2 class="text-2xl font-semibold mb-6">Configurações do Sistema</h2>
+
+                    <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
+                        <div class="px-6 py-4 border-b">
+                            <h3 class="text-lg font-semibold">Configurações Gerais</h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Nome da Empresa</label>
+                                    <input type="text" class="border rounded px-3 py-2 w-full" value="Minha Empresa LTDA">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">CNPJ</label>
+                                    <input type="text" class="border rounded px-3 py-2 w-full" value="12.345.678/0001-99">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Logotipo</label>
+                                    <div class="flex items-center">
+                                        <img src="https://via.placeholder.com/150" alt="Logo" class="h-16 w-16 rounded mr-4">
+                                        <button class="bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded">
+                                            Alterar Logo
+                                        </button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Fuso Horário</label>
+                                    <select class="border rounded px-3 py-2 w-full">
+                                        <option>America/Sao_Paulo (GMT-3)</option>
+                                        <option>UTC (GMT+0)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg mt-6">
+                                Salvar Configurações
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-white rounded-lg shadow overflow-hidden">
+                            <div class="px-6 py-4 border-b">
+                                <h3 class="text-lg font-semibold">Departamentos</h3>
+                            </div>
+                            <div class="p-6">
+                                <div class="mb-4">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="font-medium">TI</span>
+                                        <div>
+                                            <button class="text-blue-600 hover:text-blue-900 mr-2"><i class="fas fa-edit"></i></button>
+                                            <button class="text-red-600 hover:text-red-900"><i class="fas fa-trash"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="text-sm text-gray-500">15 funcionários</div>
+                                </div>
+                                <div class="mb-4">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="font-medium">RH</span>
+                                        <div>
+                                            <button class="text-blue-600 hover:text-blue-900 mr-2"><i class="fas fa-edit"></i></button>
+                                            <button class="text-red-600 hover:text-red-900"><i class="fas fa-trash"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="text-sm text-gray-500">8 funcionários</div>
+                                </div>
+                                <div class="flex items-center mt-6">
+                                    <input type="text" placeholder="Novo Departamento" class="border rounded px-3 py-2 flex-1 mr-2">
+                                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+                                        Adicionar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-lg shadow overflow-hidden">
+                            <div class="px-6 py-4 border-b">
+                                <h3 class="text-lg font-semibold">Cargos</h3>
+                            </div>
+                            <div class="p-6">
+                                <div class="mb-4">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="font-medium">Desenvolvedor</span>
+                                        <div>
+                                            <button class="text-blue-600 hover:text-blue-900 mr-2"><i class="fas fa-edit"></i></button>
+                                            <button class="text-red-600 hover:text-red-900"><i class="fas fa-trash"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="text-sm text-gray-500">TI - Salário base: R$ 5.000,00</div>
+                                </div>
+                                <div class="mb-4">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="font-medium">Analista de RH</span>
+                                        <div>
+                                            <button class="text-blue-600 hover:text-blue-900 mr-2"><i class="fas fa-edit"></i></button>
+                                            <button class="text-red-600 hover:text-red-900"><i class="fas fa-trash"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="text-sm text-gray-500">RH - Salário base: R$ 3.500,00</div>
+                                </div>
+                                <div class="flex items-center mt-6">
+                                    <input type="text" placeholder="Novo Cargo" class="border rounded px-3 py-2 flex-1 mr-2">
+                                    <select class="border rounded px-3 py-2 mr-2">
+                                        <option>TI</option>
+                                        <option>RH</option>
+                                        <option>Financeiro</option>
+                                    </select>
+                                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+                                        Adicionar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
     </div>
 
+    <!-- Employee Modal -->
+    <!-- Vacation Request Modal -->
+    <div id="vacation-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-screen overflow-y-auto">
+            <div class="px-6 py-4 border-b flex justify-between items-center">
+                <h3 class="text-xl font-semibold">Solicitar Férias</h3>
+                <button onclick="hideVacationModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Funcionário</label>
+                        <select class="border rounded px-3 py-2 w-full">
+                            <option>Carlos Silva</option>
+                            <option>Ana Souza</option>
+                            <option>Roberto Almeida</option>
+                            <option>Mariana Costa</option>
+                            <option>Pedro Santos</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Data Início</label>
+                            <input type="date" class="border rounded px-3 py-2 w-full">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Data Fim</label>
+                            <input type="date" class="border rounded px-3 py-2 w-full">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Férias</label>
+                        <select class="border rounded px-3 py-2 w-full">
+                            <option>Férias Anuais</option>
+                            <option>Férias Coletivas</option>
+                            <option>Férias Antecipadas</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Observações</label>
+                        <textarea class="border rounded px-3 py-2 w-full" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button onclick="hideVacationModal()" class="bg-gray-200 hover:bg-gray-300 px-6 py-2 rounded-lg">
+                        Cancelar
+                    </button>
+                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">
+                        Enviar Solicitação
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Process Payroll Modal -->
+    <div id="payroll-process-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-screen overflow-y-auto">
+            <div class="px-6 py-4 border-b flex justify-between items-center">
+                <h3 class="text-xl font-semibold">Processar Folha de Pagamento</h3>
+                <button onclick="hidePayrollProcessModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Mês/Ano</label>
+                        <input type="month" class="border rounded px-3 py-2 w-full">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Data de Pagamento</label>
+                        <input type="date" class="border rounded px-3 py-2 w-full">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Processamento</label>
+                        <select class="border rounded px-3 py-2 w-full">
+                            <option>Folha Completa</option>
+                            <option>Adiantamento</option>
+                            <option>13º Salário</option>
+                            <option>Férias</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="include-benefits" class="mr-2">
+                        <label for="include-benefits" class="text-sm text-gray-700">Incluir benefícios</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="include-taxes" class="mr-2" checked>
+                        <label for="include-taxes" class="text-sm text-gray-700">Incluir descontos de impostos</label>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button onclick="hidePayrollProcessModal()" class="bg-gray-200 hover:bg-gray-300 px-6 py-2 rounded-lg">
+                        Cancelar
+                    </button>
+                    <button class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg">
+                        Processar Folha
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="employee-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-screen overflow-y-auto">
+            <div class="px-6 py-4 border-b flex justify-between items-center">
+                <h3 class="text-xl font-semibold">Adicionar Novo Funcionário</h3>
+                <button onclick="hideEmployeeModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
+                        <input type="text" class="border rounded px-3 py-2 w-full">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">CPF</label>
+                        <input type="text" class="border rounded px-3 py-2 w-full">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">RG</label>
+                        <input type="text" class="border rounded px-3 py-2 w-full">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Data de Nascimento</label>
+                        <input type="date" class="border rounded px-3 py-2 w-full">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Gênero</label>
+                        <select class="border rounded px-3 py-2 w-full">
+                            <option>Masculino</option>
+                            <option>Feminino</option>
+                            <option>Outro</option>
+                            <option>Prefiro não informar</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Estado Civil</label>
+                        <select class="border rounded px-3 py-2 w-full">
+                            <option>Solteiro(a)</option>
+                            <option>Casado(a)</option>
+                            <option>Divorciado(a)</option>
+                            <option>Viúvo(a)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
+                        <input type="email" class="border rounded px-3 py-2 w-full">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                        <input type="tel" class="border rounded px-3 py-2 w-full">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Departamento</label>
+                        <select class="border rounded px-3 py-2 w-full">
+                            <option>TI</option>
+                            <option>RH</option>
+                            <option>Financeiro</option>
+                            <option>Marketing</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Cargo</label>
+                        <select class="border rounded px-3 py-2 w-full">
+                            <option>Desenvolvedor</option>
+                            <option>Analista de Sistemas</option>
+                            <option>Gerente de Projetos</option>
+                            <option>Analista de RH</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Data de Admissão</label>
+                        <input type="date" class="border rounded px-3 py-2 w-full">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Salário Base</label>
+                        <input type="text" class="border rounded px-3 py-2 w-full">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Endereço</label>
+                        <input type="text" class="border rounded px-3 py-2 w-full mb-2" placeholder="Rua, número">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <input type="text" class="border rounded px-3 py-2" placeholder="Complemento">
+                            <input type="text" class="border rounded px-3 py-2" placeholder="Cidade">
+                            <input type="text" class="border rounded px-3 py-2" placeholder="Estado">
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button onclick="hideEmployeeModal()" class="bg-gray-200 hover:bg-gray-300 px-6 py-2 rounded-lg">
+                        Cancelar
+                    </button>
+                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">
+                        Salvar Funcionário
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Function declarations first
+        // Sample data for employees
+        const employees = [
+            {
+                id: 1,
+                name: "Carlos Silva",
+                position: "Desenvolvedor Sênior",
+                department: "TI",
+                hireDate: "15/01/2020",
+                status: "Ativo",
+                photo: "https://randomuser.me/api/portraits/men/32.jpg"
+            },
+            {
+                id: 2,
+                name: "Ana Souza",
+                position: "Analista de RH",
+                department: "RH",
+                hireDate: "20/03/2021",
+                status: "Ativo",
+                photo: "https://randomuser.me/api/portraits/women/44.jpg"
+            },
+            {
+                id: 3,
+                name: "Roberto Almeida",
+                position: "Gerente Financeiro",
+                department: "Financeiro",
+                hireDate: "10/05/2019",
+                status: "Ativo",
+                photo: "https://randomuser.me/api/portraits/men/22.jpg"
+            },
+            {
+                id: 4,
+                name: "Mariana Costa",
+                position: "Designer",
+                department: "Marketing",
+                hireDate: "05/07/2022",
+                status: "Ativo",
+                photo: "https://randomuser.me/api/portraits/women/65.jpg"
+            },
+            {
+                id: 5,
+                name: "Pedro Santos",
+                position: "Analista de Sistemas",
+                department: "TI",
+                hireDate: "12/11/2021",
+                status: "Ativo",
+                photo: "https://randomuser.me/api/portraits/men/45.jpg"
+            }
+        ];
+
+        // Sample data for payroll
+        const payroll = [
+            {
+                id: 1,
+                employee: "Carlos Silva",
+                position: "Desenvolvedor Sênior",
+                baseSalary: "R$ 8.500,00",
+                overtime: "R$ 1.200,00",
+                discounts: "R$ 1.800,00",
+                netSalary: "R$ 7.900,00",
+                status: "Pago"
+            },
+            {
+                id: 2,
+                employee: "Ana Souza",
+                position: "Analista de RH",
+                baseSalary: "R$ 4.200,00",
+                overtime: "R$ 300,00",
+                discounts: "R$ 900,00",
+                netSalary: "R$ 3.600,00",
+                status: "Pago"
+            },
+            {
+                id: 3,
+                employee: "Roberto Almeida",
+                position: "Gerente Financeiro",
+                baseSalary: "R$ 12.000,00",
+                overtime: "R$ 0,00",
+                discounts: "R$ 2.700,00",
+                netSalary: "R$ 9.300,00",
+                status: "Pago"
+            },
+            {
+                id: 4,
+                employee: "Mariana Costa",
+                position: "Designer",
+                baseSalary: "R$ 5.500,00",
+                overtime: "R$ 500,00",
+                discounts: "R$ 1.200,00",
+                netSalary: "R$ 4.800,00",
+                status: "Pago"
+            },
+            {
+                id: 5,
+                employee: "Pedro Santos",
+                position: "Analista de Sistemas",
+                baseSalary: "R$ 6.000,00",
+                overtime: "R$ 800,00",
+                discounts: "R$ 1.300,00",
+                netSalary: "R$ 5.500,00",
+                status: "Pendente"
+            }
+        ];
+
+        // Initialize charts when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            loadEmployees();
+            loadPayroll();
+            initCharts();
+        });
+
+        // Load employees data into table
+        function loadEmployees() {
+            const tableBody = document.getElementById('employees-table-body');
+            tableBody.innerHTML = '';
+
+            employees.forEach(employee => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10">
+                                <img class="h-10 w-10 rounded-full" src="${employee.photo}" alt="">
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">${employee.name}</div>
+                                <div class="text-sm text-gray-500">${employee.department}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${employee.position}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500">${employee.department}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${employee.hireDate}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                            ${employee.status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <a href="#" onclick="showEmployeeModal(${employee.id})" class="text-blue-600 hover:text-blue-900 mr-3">Editar</a>
+                        <a href="#" onclick="deleteEmployee(${employee.id})" class="text-red-600 hover:text-red-900">Excluir</a>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Load payroll data into table
+        function loadPayroll() {
+            const tableBody = document.getElementById('payroll-table-body');
+            tableBody.innerHTML = '';
+
+            payroll.forEach(item => {
+                const statusClass = item.status === 'Pago' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800';
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">${item.employee}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${item.position}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${item.baseSalary}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${item.overtime}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${item.discounts}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        ${item.netSalary}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                            ${item.status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <a href="#" onclick="showPayrollModal(${item.id})" class="text-blue-600 hover:text-blue-900 mr-3">Editar</a>
+                        <a href="#" onclick="deletePayrollItem(${item.id})" class="text-red-600 hover:text-red-900">Excluir</a>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Initialize charts
+        function initCharts() {
+            // Hiring Chart
+            const hiringCtx = document.getElementById('hiringChart').getContext('2d');
+            const hiringChart = new Chart(hiringCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+                    datasets: [{
+                        label: 'Contratações',
+                        data: [5, 8, 6, 9, 7, 10],
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Department Chart
+            const departmentCtx = document.getElementById('departmentChart').getContext('2d');
+            const departmentChart = new Chart(departmentCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['TI', 'RH', 'Financeiro', 'Marketing', 'Vendas'],
+                    datasets: [{
+                        data: [35, 15, 20, 15, 15],
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.7)',
+                            'rgba(16, 185, 129, 0.7)',
+                            'rgba(245, 158, 11, 0.7)',
+                            'rgba(139, 92, 246, 0.7)',
+                            'rgba(239, 68, 68, 0.7)'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Show/hide sections
         function showSection(sectionId) {
-            document.querySelectorAll('main section').forEach(section => {
+            // Hide all sections
+            document.querySelectorAll('.section-content').forEach(section => {
                 section.classList.add('hidden');
             });
-            document.getElementById(sectionId).classList.remove('hidden');
-            window.scrollTo(0, 0);
+            
+            // Show selected section
+            document.getElementById(`${sectionId}-section`).classList.remove('hidden');
+            
+            // Update page title
+            const titles = {
+                'dashboard': 'Dashboard',
+                'employees': 'Funcionários',
+                'payroll': 'Folha de Pagamento',
+                'performance': 'Desempenho',
+                'vacations': 'Férias',
+                'reports': 'Relatórios',
+                'settings': 'Configurações'
+            };
+            document.getElementById('page-title').textContent = titles[sectionId];
         }
 
-        function toggleMobileMenu() {
-            const menu = document.getElementById('mobileMenu');
-            menu.classList.toggle('hidden');
+        // Toggle sidebar
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('collapsed');
         }
 
-        function nextScheduleStep() {
-            document.getElementById('scheduleStep1').classList.add('hidden');
-            document.getElementById('scheduleStep2').classList.remove('hidden');
+        // Change report tab
+        function changeReportTab(tabId) {
+            // Remove active class from all tabs
+            document.querySelectorAll('#reports-section button').forEach(tab => {
+                tab.classList.remove('active-tab');
+            });
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active-tab');
+            
+            // Hide all report tabs
+            document.querySelectorAll('.report-tab').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            
+            // Show selected tab
+            document.getElementById(`${tabId}-report`).classList.remove('hidden');
         }
 
-        function prevScheduleStep() {
-            document.getElementById('scheduleStep2').classList.add('hidden');
-            document.getElementById('scheduleStep1').classList.remove('hidden');
+        // Show employee modal
+        function showEmployeeModal(employee = null) {
+            const modal = document.getElementById('employee-modal');
+            if (employee) {
+                // Preencher modal com dados do funcionário para edição
+                modal.querySelector('h3').textContent = 'Editar Funcionário';
+                // Aqui você implementaria o preenchimento dos campos do formulário
+            } else {
+                modal.querySelector('h3').textContent = 'Adicionar Novo Funcionário';
+                // Limpar campos para novo cadastro
+            }
+            modal.classList.remove('hidden');
         }
 
-        function showLoginForm() {
-            document.getElementById('registerForm').classList.add('hidden');
-            document.getElementById('loginForm').classList.remove('hidden');
+        // Hide employee modal
+        function hideEmployeeModal() {
+            document.getElementById('employee-modal').classList.add('hidden');
         }
 
-        function showRegisterForm() {
-            document.getElementById('loginForm').classList.add('hidden');
-            document.getElementById('registerForm').classList.remove('hidden');
-        }
-
-        function hideLoginModal() {
-            document.getElementById('loginModal').classList.add('hidden');
-        }
-
-        function showLoginModal() {
-            document.getElementById('loginModal').classList.remove('hidden');
-            showLoginForm();
-        }
-
-        function confirmSchedule() {
-            hideLoginModal();
-            document.getElementById('successModal').classList.remove('hidden');
-        }
-
-        function hideSuccessModal() {
-            document.getElementById('successModal').classList.add('hidden');
-            showSection('my-schedules');
-        }
-
-        function rescheduleAppointment(id) {
-            showSection('schedule');
-            alert('Você está reagendando o agendamento #' + id);
-        }
-
-        function cancelAppointment(id) {
-            if (confirm('Tem certeza que deseja cancelar este agendamento?')) {
-                alert('Agendamento #' + id + ' cancelado com sucesso!');
+        // Delete employee
+        function deleteEmployee(id) {
+            if (confirm('Tem certeza que deseja excluir este funcionário?')) {
+                alert(`Funcionário com ID ${id} excluído com sucesso!`);
+                // Aqui você implementaria a remoção do funcionário do array/database
+                loadEmployees(); // Recarregar a lista
             }
         }
 
-        function viewDetails(id) {
-            alert('Detalhes do agendamento #' + id);
+        // Delete payroll item
+        function deletePayrollItem(id) {
+            if (confirm('Tem certeza que deseja excluir este item da folha de pagamento?')) {
+                alert(`Item com ID ${id} excluído com sucesso!`);
+                // Aqui você implementaria a remoção do item do array/database
+                loadPayroll(); // Recarregar a lista
+            }
         }
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            showSection('home');
-        });
+        // Vacation modal functions
+        function showVacationModal() {
+            document.getElementById('vacation-modal').classList.remove('hidden');
+        }
+
+        function hideVacationModal() {
+            document.getElementById('vacation-modal').classList.add('hidden');
+        }
+
+        // Payroll modal functions
+        function showPayrollModal(id = null) {
+            if (id) {
+                // Preencher modal com dados do item para edição
+                alert(`Editando item da folha com ID ${id}`);
+            } else {
+                // Modal para novo item
+            }
+        }
+
+        // Payroll process modal functions
+        function showPayrollProcessModal() {
+            document.getElementById('payroll-process-modal').classList.remove('hidden');
+        }
+
+        function hidePayrollProcessModal() {
+            document.getElementById('payroll-process-modal').classList.add('hidden');
+        }
+
+        // Export functions
+        function exportReport() {
+            alert('Relatório exportado com sucesso!');
+        }
+
+        function exportPayroll() {
+            alert('Folha de pagamento exportada com sucesso!');
+        }
+
+        // Approve/Reject functions
+        function approveVacation() {
+            alert('Férias aprovadas com sucesso!');
+        }
+
+        function rejectVacation() {
+            if(confirm('Tem certeza que deseja rejeitar esta solicitação de férias?')) {
+                alert('Solicitação de férias rejeitada!');
+            }
+        }
+
+        // Process payroll
+        function processPayroll() {
+            if(confirm('Deseja processar a folha de pagamento para o mês selecionado?')) {
+                alert('Folha de pagamento processada com sucesso!');
+                hidePayrollProcessModal();
+            }
+        }
     </script>
 </body>
 </html>
